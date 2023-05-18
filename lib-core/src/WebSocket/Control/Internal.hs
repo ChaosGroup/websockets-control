@@ -21,7 +21,7 @@ data Receiver
     | All
 
 
-type Handler i o = ClientId -> U.OutChan (Incoming i) -> U.InChan (Outgoing o) -> IO ()
+type Handler i o = ClientId -> IO (Incoming i) -> (Receiver -> o -> IO ()) -> IO ()
 
 
 withControl :: (A.FromJSON i, A.ToJSON o) => Handler i o -> ClientTable -> WS.Connection -> IO ()
@@ -39,19 +39,24 @@ withControl handler tbl conn = WS.withPingThread conn 30 mempty $ do
             in flip finally (removeClient tbl cid) $ withAsync fromControl $ const fromWebsocket
 
         writer = forever $ do
-            Send recv msg <- U.readChan wout
+            Send receiver msg <- U.readChan wout
             let encodedMsg = A.encode msg
-            conns <- case recv of
+            conns <- case receiver of
                 Me -> pure [conn]
                 All -> getConnections tbl
             for_ conns $ flip WS.sendTextData encodedMsg
 
-    withAsync (handler cid rout win) $ const $ withAsync writer $ const reader
+        app =
+            let send receiver msg = U.writeChan win (Send receiver msg)
+                recv = U.readChan rout
+            in handler cid recv send
+
+    withAsync app $ const $ withAsync writer $ const reader
 
 
 usage :: ClientTable -> WS.Connection -> IO ()
-usage = withControl $ \cid incoming outgoing -> do
+usage = withControl $ \cid recv send -> do
     putStrLn ("I am " <> show cid)
-    U.writeChan outgoing (Send @Int Me 42)
-    _ :: Incoming Int <- U.readChan incoming
+    send Me (42::Int)
+    _ :: Incoming Int <- recv
     pure ()
