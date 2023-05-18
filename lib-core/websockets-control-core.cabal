@@ -1,0 +1,40 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.35.1.
+--
+-- see: https://github.com/sol/hpack
+
+name:           websockets-control-core
+version:        0.0.1.0
+synopsis:       Utilies to interact with other websocket connections
+description:    Please see the README on Github at <https://github.com/ChaosGroup/websockets-control#readme>
+category:       Network
+homepage:       https://github.com/ChaosGroup/websockets-control#readme
+bug-reports:    https://github.com/ChaosGroup/websockets-control/issues
+author:         Tsvetan Ovedenski
+maintainer:     dev@tsovedenski.com
+copyright:      Copyright 2023 Chaos Software OOD
+license:        MIT
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    CHANGELOG.md
+
+source-repository head
+  type: git
+  location: https://github.com/ChaosGroup/websockets-control
+
+library
+  exposed-modules:
+      WebSocket.Control
+  other-modules:
+      Paths_websockets_control_core
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates
+  build-depends:
+      async
+    , base >=4.7 && <5
+    , websockets
+  default-language: GHC2021

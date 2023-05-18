@@ -1,0 +1,30 @@
+name:                websockets-control-core
+version:             0.0.1.0
+github:              "ChaosGroup/websockets-control"
+license:             MIT
+author:              "Tsvetan Ovedenski"
+maintainer:          "dev@tsovedenski.com"
+copyright:           "Copyright 2023 Chaos Software OOD"
+
+synopsis:            Utilies to interact with other websocket connections
+category:            Network
+
+description:         Please see the README on Github at <https://github.com/ChaosGroup/websockets-control#readme>
+
+extra-source-files:
+- README.md
+- CHANGELOG.md
+
+dependencies:
+- base >= 4.7 && < 5
+- async
+- websockets
+
+library:
+  source-dirs: src
+  language: GHC2021
+
+ghc-options:
+- -Wall
+- -fwarn-incomplete-uni-patterns
+- -fwarn-incomplete-record-updates

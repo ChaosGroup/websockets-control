@@ -1,0 +1,6 @@
+cradle:
+  multi:
+    - path: "lib-core"
+      config:
+        cradle:
+          stack:
