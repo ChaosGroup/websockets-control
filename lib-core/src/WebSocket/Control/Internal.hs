@@ -57,6 +57,9 @@ withControl handler tbl conn = WS.withPingThread conn 30 mempty $ do
 usage :: ClientTable -> WS.Connection -> IO ()
 usage = withControl $ \cid recv send -> do
     putStrLn ("I am " <> show cid)
-    send Me (42::Int)
-    _ :: Incoming Int <- recv
-    pure ()
+    send Me "Hello"
+    res <- recv
+    case res of
+        Control (Connected c) -> putStrLn ("Connected: " <> show c)
+        Control (Disconnected c) -> putStrLn ("Disconnected: " <> show c)
+        Message msg -> putStrLn ("Received: " <> show @Int msg)
