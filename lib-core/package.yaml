@@ -18,7 +18,14 @@ extra-source-files:
 dependencies:
 - base >= 4.7 && < 5
 - async
+- containers
+- time
+- unagi-chan
 - websockets
+
+default-extensions:
+- DerivingStrategies
+- RecordWildCards
 
 library:
   source-dirs: src
