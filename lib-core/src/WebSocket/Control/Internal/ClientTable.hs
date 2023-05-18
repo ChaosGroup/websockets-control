@@ -3,20 +3,24 @@ module WebSocket.Control.Internal.ClientTable where
 import Control.Concurrent.MVar
 import Control.Exception (evaluate)
 import Control.Monad (when)
-import Data.Time.Clock.System (SystemTime, getSystemTime)
 import qualified Control.Concurrent.Chan.Unagi as U
 import qualified Data.Map.Strict as M
+import qualified Data.Time.Clock.System as SystemTime
 import qualified Network.WebSockets as WS
 
 
-newtype ClientId = ClientId SystemTime
+newtype ClientId = ClientId SystemTime.SystemTime
     deriving newtype (Eq, Ord)
 
+instance Show ClientId where
+    show (ClientId s) = show (SystemTime.systemSeconds s) <> "." <> show (SystemTime.systemNanoseconds s)
+
+
 newClientId :: IO ClientId
-newClientId = ClientId <$> getSystemTime
+newClientId = ClientId <$> SystemTime.getSystemTime
 
 
-newtype Client = Client WS.Connection
+newtype Client = Client { clientConnection :: WS.Connection }
 
 
 data ClientControl
@@ -52,3 +56,9 @@ removeClient tbl cid = do
         Just _  -> (M.delete cid m, True)
         Nothing -> (m, False)
     when removed $ U.writeChan (tblControl tbl) (Disconnected cid)
+
+
+getConnections :: ClientTable -> IO [WS.Connection]
+getConnections tbl = do
+    clients <- M.elems <$> readMVar (tblClients tbl)
+    pure $ map clientConnection clients

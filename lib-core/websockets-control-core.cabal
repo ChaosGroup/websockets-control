@@ -39,9 +39,11 @@ library
       RecordWildCards
   ghc-options: -Wall -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates
   build-depends:
-      async
+      aeson
+    , async
     , base >=4.7 && <5
     , containers
+    , safe-exceptions
     , time
     , unagi-chan
     , websockets

@@ -17,8 +17,10 @@ extra-source-files:
 
 dependencies:
 - base >= 4.7 && < 5
+- aeson
 - async
 - containers
+- safe-exceptions
 - time
 - unagi-chan
 - websockets
