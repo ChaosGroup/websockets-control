@@ -4,7 +4,7 @@ import Control.Concurrent.Async
 import Control.Exception.Safe (finally)
 import Control.Monad (forever)
 import Data.Foldable (for_)
-import qualified Control.Concurrent.Chan.Unagi as U
+import qualified Control.Concurrent.Chan.Unagi.Bounded as U
 import qualified Data.Aeson as A
 import qualified Network.WebSockets as WS
 import WebSocket.Control.Internal.ClientTable
@@ -27,8 +27,8 @@ type Handler i o = ClientId -> U.OutChan (Incoming i) -> U.InChan (Outgoing o) -
 withControl :: (A.FromJSON i, A.ToJSON o) => Handler i o -> ClientTable -> WS.Connection -> IO ()
 withControl handler tbl conn = WS.withPingThread conn 30 mempty $ do
     (cid, control) <- addClient tbl conn
-    (rin, rout) <- U.newChan
-    (win, wout) <- U.newChan
+    (rin, rout) <- U.newChan 4
+    (win, wout) <- U.newChan 4
 
     let reader =
             let fromControl = forever $ U.readChan control >>= U.writeChan rin . Control

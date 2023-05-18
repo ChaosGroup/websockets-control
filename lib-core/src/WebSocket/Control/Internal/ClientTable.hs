@@ -3,7 +3,7 @@ module WebSocket.Control.Internal.ClientTable where
 import Control.Concurrent.MVar
 import Control.Exception (evaluate)
 import Control.Monad (when)
-import qualified Control.Concurrent.Chan.Unagi as U
+import qualified Control.Concurrent.Chan.Unagi.Bounded as U
 import qualified Data.Map.Strict as M
 import qualified Data.Time.Clock.System as SystemTime
 import qualified Network.WebSockets as WS
@@ -37,7 +37,7 @@ data ClientTable = ClientTable
 newClientTable :: IO ClientTable
 newClientTable = do
     tblClients <- newMVar mempty
-    tblControl <- fst <$> U.newChan
+    tblControl <- fst <$> U.newChan 64
     pure ClientTable {..}
 
 
