@@ -9,6 +9,9 @@ import qualified Data.Aeson as A
 import qualified Network.WebSockets as WS
 import WebSocket.Control.Internal.ClientTable
 
+import Control.Concurrent (threadDelay)
+import Data.Time (getCurrentTime)
+
 
 data Incoming msg
     = Control ClientControl
@@ -55,11 +58,30 @@ withControl handler tbl conn = WS.withPingThread conn 30 mempty $ do
 
 
 usage :: ClientTable -> WS.Connection -> IO ()
-usage = withControl $ \cid recv send -> do
-    putStrLn ("I am " <> show cid)
+usage = withControl $ \myId recv send -> do
+    putStrLn ("I am " <> show myId)
     send Me "Hello"
     res <- recv
     case res of
-        Control (Connected c) -> putStrLn ("Connected: " <> show c)
-        Control (Disconnected c) -> putStrLn ("Disconnected: " <> show c)
+        Control (Connected clientId) -> putStrLn ("Connected: " <> show clientId)
+        Control (Disconnected clientId) -> putStrLn ("Disconnected: " <> show clientId)
         Message msg -> putStrLn ("Received: " <> show @Int msg)
+
+
+usage2 :: ClientTable -> WS.Connection -> IO ()
+usage2 = withControl hdl
+  where
+    hdl :: Handler Int String
+    hdl _myId recv send = do
+        let currentTime = forever $ do
+                now <- getCurrentTime
+                send All (show now)
+                threadDelay 1_000_000
+
+            process msg = send Me $ show (msg + 1)
+
+        withAsync currentTime $ \_ -> forever $ do
+            res <- recv
+            case res of
+                Message msg -> process msg
+                _ -> pure ()
