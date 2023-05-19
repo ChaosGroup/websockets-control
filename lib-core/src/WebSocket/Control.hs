@@ -2,6 +2,7 @@ module WebSocket.Control
     ( ClientId
     , ClientControl (..)
     , ClientTable
+    , Handler
     , newClientTable
     , withControl
      ) where
