@@ -4,6 +4,8 @@ module WebSocket.Control
     , ClientTable
     , Handler
     , Context (..)
+    , Incoming (..)
+    , Receiver (..)
     , newClientTable
     , withControl
     ) where
