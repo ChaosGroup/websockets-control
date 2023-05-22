@@ -5,7 +5,7 @@ module WebSocket.Control
     , Handler
     , newClientTable
     , withControl
-     ) where
+    ) where
 
 import WebSocket.Control.Internal
 import WebSocket.Control.Internal.ClientTable

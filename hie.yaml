@@ -1,6 +1,6 @@
 cradle:
   multi:
-    - path: "lib-core"
+    - path: "websockets-control-core"
       config:
         cradle:
           stack:
