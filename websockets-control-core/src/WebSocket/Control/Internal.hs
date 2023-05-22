@@ -24,17 +24,17 @@ data Receiver
     | All
 
 
-data Context m i o = Context
+data Context i o = Context
     { myId :: ClientId
-    , recv :: m (Incoming i)
-    , send :: Receiver -> o -> m ()
+    , recv :: IO (Incoming i)
+    , send :: Receiver -> o -> IO ()
     }
 
 
-type Handler m i o = Context m i o -> m ()
+type Handler i o = Context i o -> IO ()
 
 
-withControl :: (A.FromJSON i, A.ToJSON o) => Handler IO i o -> ClientTable -> WS.Connection -> IO ()
+withControl :: (A.FromJSON i, A.ToJSON o) => Handler i o -> ClientTable -> WS.Connection -> IO ()
 withControl handler tbl conn = WS.withPingThread conn 30 mempty $ do
     (cid, control) <- addClient tbl conn
     (rin, rout) <- U.newChan 4
@@ -81,7 +81,7 @@ usage = withControl $ \ctx -> do
 usage2 :: ClientTable -> WS.Connection -> IO ()
 usage2 = withControl hdl
   where
-    hdl :: Handler IO Int String
+    hdl :: Handler Int String
     hdl ctx = do
         let currentTime = forever $ do
                 now <- getCurrentTime
