@@ -24,10 +24,17 @@ data Receiver
     | All
 
 
-type Handler i o = ClientId -> IO (Incoming i) -> (Receiver -> o -> IO ()) -> IO ()
+data Context m i o = Context
+    { myId :: ClientId
+    , recv :: m (Incoming i)
+    , send :: Receiver -> o -> m ()
+    }
 
 
-withControl :: (A.FromJSON i, A.ToJSON o) => Handler i o -> ClientTable -> WS.Connection -> IO ()
+type Handler m i o = Context m i o -> m ()
+
+
+withControl :: (A.FromJSON i, A.ToJSON o) => Handler IO i o -> ClientTable -> WS.Connection -> IO ()
 withControl handler tbl conn = WS.withPingThread conn 30 mempty $ do
     (cid, control) <- addClient tbl conn
     (rin, rout) <- U.newChan 4
@@ -52,16 +59,19 @@ withControl handler tbl conn = WS.withPingThread conn 30 mempty $ do
         app =
             let send receiver msg = U.writeChan win (Send receiver msg)
                 recv = U.readChan rout
-            in handler cid recv send
+            in handler Context
+                { myId = cid
+                , ..
+                }
 
     withAsync app $ const $ withAsync writer $ const reader
 
 
 usage :: ClientTable -> WS.Connection -> IO ()
-usage = withControl $ \myId recv send -> do
-    putStrLn ("I am " <> show myId)
-    send Me "Hello"
-    res <- recv
+usage = withControl $ \ctx -> do
+    putStrLn ("I am " <> show (myId ctx))
+    send ctx Me "Hello"
+    res <- recv ctx
     case res of
         Control (Connected clientId) -> putStrLn ("Connected: " <> show clientId)
         Control (Disconnected clientId) -> putStrLn ("Disconnected: " <> show clientId)
@@ -71,17 +81,17 @@ usage = withControl $ \myId recv send -> do
 usage2 :: ClientTable -> WS.Connection -> IO ()
 usage2 = withControl hdl
   where
-    hdl :: Handler Int String
-    hdl _myId recv send = do
+    hdl :: Handler IO Int String
+    hdl ctx = do
         let currentTime = forever $ do
                 now <- getCurrentTime
-                send All (show now)
+                send ctx All (show now)
                 threadDelay 1_000_000
 
-            process msg = send Me $ show (msg + 1)
+            process msg = send ctx Me $ show (msg + 1)
 
         withAsync currentTime $ \_ -> forever $ do
-            res <- recv
+            res <- recv ctx
             case res of
                 Message msg -> process msg
                 _ -> pure ()

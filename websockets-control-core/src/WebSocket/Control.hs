@@ -3,6 +3,7 @@ module WebSocket.Control
     , ClientControl (..)
     , ClientTable
     , Handler
+    , Context (..)
     , newClientTable
     , withControl
     ) where
