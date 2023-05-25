@@ -1,14 +1,14 @@
 module WebSocket.Control.Internal where
 
 import Control.Concurrent.Async
+import Control.Concurrent.Chan.Unagi.Bounded qualified as U
 import Control.Exception.Safe (finally)
 import Control.Monad (forever)
+import Data.Aeson qualified as A
 import Data.Foldable (for_)
-import qualified Control.Concurrent.Chan.Unagi.Bounded as U
-import qualified Data.Aeson as A
-import qualified Network.WebSockets as WS
+import Data.Set qualified as S
+import Network.WebSockets qualified as WS
 import WebSocket.Control.Internal.ClientTable
-import qualified Data.Set as S
 
 import Control.Concurrent (threadDelay)
 import Data.Time (getCurrentTime)
@@ -99,4 +99,4 @@ usage2 = withControl hdl
             res <- recv ctx
             case res of
                 Message msg -> process msg
-                _ -> pure ()
+                _           -> pure ()

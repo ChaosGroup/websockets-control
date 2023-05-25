@@ -1,12 +1,12 @@
 module WebSocket.Control.Internal.ClientTable where
 
+import Control.Concurrent.Chan.Unagi.Bounded qualified as U
 import Control.Concurrent.MVar
 import Control.Exception (evaluate)
 import Control.Monad (when)
-import qualified Control.Concurrent.Chan.Unagi.Bounded as U
-import qualified Data.Map.Strict as M
-import qualified Data.Time.Clock.System as SystemTime
-import qualified Network.WebSockets as WS
+import Data.Map.Strict qualified as M
+import Data.Time.Clock.System qualified as SystemTime
+import Network.WebSockets qualified as WS
 
 
 -- |Opaque unique identifier for a connected client
