@@ -28,13 +28,23 @@ source-repository head
 library
   exposed-modules:
       WebSocket.Control
+      WebSocket.Control.Internal
+      WebSocket.Control.Internal.ClientTable
   other-modules:
       Paths_websockets_control_core
   hs-source-dirs:
       src
+  default-extensions:
+      DerivingStrategies
+      RecordWildCards
   ghc-options: -Wall -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates
   build-depends:
-      async
+      aeson
+    , async
     , base >=4.7 && <5
+    , containers
+    , safe-exceptions
+    , time
+    , unagi-chan
     , websockets
   default-language: GHC2021
