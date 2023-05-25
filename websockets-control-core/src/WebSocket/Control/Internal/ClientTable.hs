@@ -65,8 +65,8 @@ removeClient tbl cid = do
     when removed $ U.writeChan (tblControl tbl) (Disconnected cid)
 
 
--- |Get just the connection of all connected clients
-getConnections :: ClientTable -> IO [WS.Connection]
-getConnections tbl = do
-    clients <- M.elems <$> readMVar (tblClients tbl)
+-- |Get just the connection of all connected clients, possibly filtered by 'ClientId'
+getConnections :: (ClientId -> Bool) -> ClientTable -> IO [WS.Connection]
+getConnections select tbl = do
+    clients <- M.elems . M.filterWithKey (const . select) <$> readMVar (tblClients tbl)
     pure $ map clientConnection clients

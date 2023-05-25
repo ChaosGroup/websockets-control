@@ -8,6 +8,7 @@ import qualified Control.Concurrent.Chan.Unagi.Bounded as U
 import qualified Data.Aeson as A
 import qualified Network.WebSockets as WS
 import WebSocket.Control.Internal.ClientTable
+import qualified Data.Set as S
 
 import Control.Concurrent (threadDelay)
 import Data.Time (getCurrentTime)
@@ -21,6 +22,7 @@ data Outgoing msg = Send Receiver msg
 
 data Receiver
     = Me
+    | Selected [ClientId]
     | All
 
 
@@ -53,7 +55,10 @@ withControl handler tbl conn = WS.withPingThread conn 30 mempty $ do
             let encodedMsg = A.encode msg
             conns <- case receiver of
                 Me -> pure [conn]
-                All -> getConnections tbl
+                Selected clientIds ->
+                    let uniqIds = S.fromList clientIds
+                    in getConnections (`S.member` uniqIds) tbl
+                All -> getConnections (const True) tbl
             for_ conns $ flip WS.sendTextData encodedMsg
 
         app =
