@@ -5,7 +5,7 @@ import Control.Concurrent.Chan.Unagi.Bounded qualified as U
 import Control.Exception.Safe (finally)
 import Control.Monad (forever)
 import Data.Aeson qualified as A
-import Data.Foldable (for_)
+import Data.Foldable (for_, foldMap')
 import Data.Set qualified as S
 import Network.WebSockets qualified as WS
 import WebSocket.Control.Internal.ClientTable
@@ -22,7 +22,7 @@ data Outgoing msg = Send Receiver msg
 
 data Receiver
     = Me
-    | Selected [ClientId]
+    | forall f. Foldable f => Selected (f ClientId)
     | All
 
 
@@ -56,7 +56,7 @@ withControl handler tbl conn = WS.withPingThread conn 30 mempty $ do
             conns <- case receiver of
                 Me -> pure [conn]
                 Selected clientIds ->
-                    let uniqIds = S.fromList clientIds
+                    let uniqIds = foldMap' S.singleton clientIds
                     in getConnections (`S.member` uniqIds) tbl
                 All -> getConnections (const True) tbl
             for_ conns $ flip WS.sendTextData encodedMsg
