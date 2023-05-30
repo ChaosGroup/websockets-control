@@ -10,8 +10,6 @@ import Data.Set qualified as S
 import Network.WebSockets qualified as WS
 import WebSocket.Control.Internal.ClientTable
 
-import Control.Concurrent (threadDelay)
-import Data.Time (getCurrentTime)
 
 
 data Incoming msg
@@ -70,33 +68,3 @@ withControl handler tbl conn = WS.withPingThread conn 30 mempty $ do
                 }
 
     withAsync app $ const $ withAsync writer $ const reader
-
-
-usage :: ClientTable -> WS.Connection -> IO ()
-usage = withControl $ \ctx -> do
-    putStrLn ("I am " <> show (myId ctx))
-    send ctx Me "Hello"
-    res <- recv ctx
-    case res of
-        Control (Connected clientId) -> putStrLn ("Connected: " <> show clientId)
-        Control (Disconnected clientId) -> putStrLn ("Disconnected: " <> show clientId)
-        Message msg -> putStrLn ("Received: " <> show @Int msg)
-
-
-usage2 :: ClientTable -> WS.Connection -> IO ()
-usage2 = withControl hdl
-  where
-    hdl :: Handler Int String
-    hdl ctx = do
-        let currentTime = forever $ do
-                now <- getCurrentTime
-                send ctx All (show now)
-                threadDelay 1_000_000
-
-            process msg = send ctx Me $ show (msg + 1)
-
-        withAsync currentTime $ \_ -> forever $ do
-            res <- recv ctx
-            case res of
-                Message msg -> process msg
-                _           -> pure ()

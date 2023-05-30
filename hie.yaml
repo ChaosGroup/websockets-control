@@ -1,5 +1,9 @@
 cradle:
   multi:
+    - path: "examples"
+      config:
+        cradle:
+          stack:
     - path: "websockets-control-core"
       config:
         cradle:
