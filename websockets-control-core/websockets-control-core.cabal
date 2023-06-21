@@ -1,16 +1,15 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.35.1.
+-- This file has been generated from package.yaml by hpack version 0.35.2.
 --
 -- see: https://github.com/sol/hpack
 
 name:           websockets-control-core
-version:        0.0.1.0
-synopsis:       Utilies to interact with other websocket connections
-description:    Please see the README on Github at <https://github.com/ChaosGroup/websockets-control#readme>
+version:        0.1.0.0
+synopsis:       Interact with other websocket connections
+description:    Utilies that make interaction with other websocket connections easier. With this you can have one client send messages to other clients. You can also detect when a new client has connected or disconnected.
 category:       Network
-homepage:       https://github.com/ChaosGroup/websockets-control#readme
-bug-reports:    https://github.com/ChaosGroup/websockets-control/issues
+homepage:       https://github.com/ChaosGroup/websockets-control
 author:         Tsvetan Ovedenski
 maintainer:     dev@tsovedenski.com
 copyright:      Copyright 2023 Chaos Software OOD
@@ -20,10 +19,6 @@ build-type:     Simple
 extra-source-files:
     README.md
     CHANGELOG.md
-
-source-repository head
-  type: git
-  location: https://github.com/ChaosGroup/websockets-control
 
 library
   exposed-modules:
